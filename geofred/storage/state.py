@@ -1,7 +1,7 @@
-import os, logging
-import pandas as pd 
+import os
+import pandas as pd
 
-from geofred.utils import make_valid_zip, build_map
+from geofred.utils import build_map
 
 state_fname = "state.csv"
 
@@ -10,7 +10,9 @@ state_fpath = os.path.join(this_dir, state_fname)
 
 DF_STATE = pd.read_csv(state_fpath)
 
-def build_state_map(): 
+
+def build_state_map():
     return build_map(DF_STATE, ["State", "Abvr"])
+
 
 STATE_MAP = build_state_map()

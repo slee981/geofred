@@ -81,6 +81,26 @@ def do_search(topic: str, **kwargs) -> pd.DataFrame:
     return df
 
 
+def search_with_filter(term: str, **kwargs) -> pd.DataFrame:
+    df_search_results = do_search(term, **kwargs)
+
+    # apply filters
+    if "locations" in kwargs.keys():
+        locations = kwargs.pop("locations")
+        df_search_results = df_search_results.loc[df_search_results["location"].isin(
+            locations), :]
+    if "sa" in kwargs.keys():
+        sa = kwargs.pop("sa")
+        df_search_results = df_search_results.loc[df_search_results["seasonal_adjustment_short"] == sa, :]
+    if "agg" in kwargs.keys():
+        agg = kwargs.pop("agg")
+        df_search_results = df_search_results.loc[df_search_results["aggregation"] == agg, :]
+    if "topic" in kwargs.keys():
+        topics = kwargs.pop("topic")
+        df_search_results = df_search_results.loc[df_search_results["topic"] == topics, :]
+    return df_search_results.reset_index()
+
+
 def parse_fred_title(title):
     """
     parse the fred title for the following information: 

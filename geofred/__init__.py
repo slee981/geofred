@@ -1,3 +1,3 @@
 from .geofred import (
-        search, locations
+    search, data, locations
 )

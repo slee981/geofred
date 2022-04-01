@@ -1,46 +1,68 @@
-import os, logging
+import os
+import logging
 from typing import Union, List
 
 import pandas as pd
+import numpy as np
 import fred
 
 from geofred.utils import (
-    do_search,
-    parse_fred_title, 
-    get_locations_df, 
+    search_with_filter,
+    get_search_terms,
+    get_locations_df,
     make_valid_zip
 )
 
 
-def search(term: Union[str, List[str]], **kwargs): 
-    df_search_results = do_search(term, **kwargs) 
+def search(topics: Union[str, List[str]], **kwargs):
+    """Return dataframe with relevant FRED series names"""
+    search_terms = get_search_terms(topics)
 
-    # apply filters
-    if "locations" in kwargs.keys(): 
-        locations = kwargs.pop("locations")
-        df_search_results = df_search_results.loc[df_search_results["location"].isin(locations), :]
-    if "sa" in kwargs.keys(): 
-        sa = kwargs.pop("sa")
-        df_search_results = df_search_results.loc[df_search_results["seasonal_adjustment_short"] == sa, :]
-    if "agg" in kwargs.keys(): 
-        agg = kwargs.pop("agg")
-        df_search_results = df_search_results.loc[df_search_results["aggregation"] == agg, :]
-    if "topic" in kwargs.keys(): 
-        topics = kwargs.pop("topic")
-        df_search_results = df_search_results.loc[df_search_results["topic"] == topics, :]
-    return df_search_results.reset_index()
+    data_container = []
+    for i, term in enumerate(search_terms):
+        topic = topics[i]
+        df_tmp = search_with_filter(term, topic=topic, **kwargs)
+        data_container.append(df_tmp)
+
+    if len(data_container) == 0:
+        return pd.DataFrame()
+    return pd.concat(data_container)
 
 
-def locations(zips): 
+def data(series_df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+    """Input the DataFrame result of a 'search' call"""
+    data_container = []
+    ids = series_df["id"].values
+    locations = series_df["location"].values
+    topics = series_df["topic"].values
+    aggregations = series_df["aggregation"].values
+    for i, series_id in enumerate(ids):
+        try:
+            res = fred.observations(series_id, **kwargs)
+            df_tmp = pd.DataFrame(res["observations"])
+
+            df_tmp = df_tmp.drop(["realtime_start", "realtime_end"], axis=1)
+            df_tmp["value"] = df_tmp["value"] \
+                .apply(lambda x: np.nan if x == "." else x) \
+                .str.replace(",", "") \
+                .apply(pd.to_numeric)
+            df_tmp["id"] = ids[i]
+            df_tmp["location"] = locations[i]
+            df_tmp["topic"] = topics[i]
+            df_tmp["aggregation"] = aggregations[i]
+
+            data_container.append(df_tmp)
+        except:
+            logging.info(f"no data found for {series_id}")
+    return pd.concat(data_container, axis=0, join="outer")
+
+
+def locations(zips: Union[List[int], List[str]]) -> pd.DataFrame:
     """Return a dataframe of relevant location information. 
-    
+
     :param zips: a pandas Series object of zipcodes. 
     """
     zips = zips.apply(make_valid_zip).drop_duplicates().sort_values().values
     loc_df = get_locations_df()
     idxs = loc_df['zip'].isin(zips)
     return loc_df.loc[idxs, :].reset_index(drop=True)
-
-
-def join_data(*args): 
-    return pd.concat(args, axis=1)
