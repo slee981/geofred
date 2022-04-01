@@ -1,4 +1,9 @@
 **/__pycache__
+build
 
 .vscode
+.pyenv
 
+geofred.egg-info
+
+workspace.py

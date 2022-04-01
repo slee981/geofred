@@ -1,0 +1,21 @@
+from setuptools import setup
+
+setup(
+    name='geofred',
+    version='1.0.0',
+    description='A wrapper around "zachwill/fred" FRED API that provides easier handling of locations and aggregation types.',
+    url='https://github.com/slee981/geofred',
+    author='Stephen Lee',
+    author_email='smlee.981@gmail.com',
+    license='BSD 2-clause',
+    packages=['geofred'],
+    install_requires=[
+        'pandas',
+        'numpy',
+        'fred'
+    ],
+    classifiers=[
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3.5',
+    ],
+)

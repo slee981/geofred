@@ -20,8 +20,8 @@ def search(topics: Union[str, List[str]], **kwargs):
 
     data_container = []
     for i, term in enumerate(search_terms):
-        topic = topics[i]
-        df_tmp = search_with_filter(term, topic=topic, **kwargs)
+        df_tmp = search_with_filter(term, **kwargs)
+        logging.debug(f"found data with shape {df_tmp.shape}")
         data_container.append(df_tmp)
 
     if len(data_container) == 0:
@@ -40,17 +40,17 @@ def data(series_df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         try:
             res = fred.observations(series_id, **kwargs)
             df_tmp = pd.DataFrame(res["observations"])
+            logging.debug(f"{series_id}: found data with shape {df_tmp.shape}")
 
             df_tmp = df_tmp.drop(["realtime_start", "realtime_end"], axis=1)
-            df_tmp["value"] = df_tmp["value"] \
-                .apply(lambda x: np.nan if x == "." else x) \
-                .str.replace(",", "") \
-                .apply(pd.to_numeric)
+            df_tmp["value"] = df_tmp["value"].apply(
+                lambda x: np.nan if x == "." else x).str.replace(",", "").apply(pd.to_numeric)
             df_tmp["id"] = ids[i]
             df_tmp["location"] = locations[i]
             df_tmp["topic"] = topics[i]
             df_tmp["aggregation"] = aggregations[i]
 
+            logging.debug(f"adding data to container.")
             data_container.append(df_tmp)
         except:
             logging.info(f"no data found for {series_id}")
@@ -62,7 +62,8 @@ def locations(zips: Union[List[int], List[str]]) -> pd.DataFrame:
 
     :param zips: a pandas Series object of zipcodes. 
     """
-    zips = zips.apply(make_valid_zip).drop_duplicates().sort_values().values
+    zips_ds = pd.Series(zips)
+    zips = zips_ds.apply(make_valid_zip).drop_duplicates().sort_values().values
     loc_df = get_locations_df()
     idxs = loc_df['zip'].isin(zips)
     return loc_df.loc[idxs, :].reset_index(drop=True)

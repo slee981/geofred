@@ -3,6 +3,8 @@ import logging
 
 import pandas as pd
 
+import fred
+
 
 def do_search(topic: str, **kwargs) -> pd.DataFrame:
     """Search St. Louis Federal Reserve FRED API for relevant data series. 
@@ -35,6 +37,7 @@ def do_search(topic: str, **kwargs) -> pd.DataFrame:
             return pd.DataFrame()
     else:
         api_key = kwargs.pop("api_key")
+        os.environ['FRED_API_KEY'] = api_key
 
     # TODO: avoid initiating this each time.
     api = fred.Fred(api_key=api_key)
@@ -63,12 +66,12 @@ def do_search(topic: str, **kwargs) -> pd.DataFrame:
             if 'title' in df_tmp.columns:
                 logging.debug(f"found data on search.")
 
-                t, l, a = df_tmp['title'].apply(parse_fred_title)
-                df_tmp['topic'] = t
-                df_tmp['location'] = l
-                df_tmp['aggregation'] = a
+                series_info = df_tmp['title'].apply(parse_fred_title)
+                df_tmp['topic'] = series_info.apply(lambda x: x[0])
+                df_tmp['location'] = series_info.apply(lambda x: x[1])
+                df_tmp['aggregation'] = series_info.apply(lambda x: x[2])
 
-                df = df.append(df_tmp)
+                df = pd.concat([df, df_tmp])
         except:
             logging.error(f"ERROR: Disconnected from host with result {res}.")
             throws_error = True
@@ -84,21 +87,29 @@ def do_search(topic: str, **kwargs) -> pd.DataFrame:
 def search_with_filter(term: str, **kwargs) -> pd.DataFrame:
     df_search_results = do_search(term, **kwargs)
 
+    # check if any data was returned
+    logging.debug(f"found data with shape {df_search_results.shape}")
+    if df_search_results.shape[0] == 0:
+        return pd.DataFrame()
+
     # apply filters
     if "locations" in kwargs.keys():
         locations = kwargs.pop("locations")
-        df_search_results = df_search_results.loc[df_search_results["location"].isin(
-            locations), :]
+        df_search_results = df_search_results.loc[df_search_results["location"]
+                                                  .isin(locations), :]
     if "sa" in kwargs.keys():
         sa = kwargs.pop("sa")
+        logging.debug(f"looking for {sa} seasonal adjustment.")
         df_search_results = df_search_results.loc[df_search_results["seasonal_adjustment_short"] == sa, :]
     if "agg" in kwargs.keys():
         agg = kwargs.pop("agg")
+        logging.debug(f"looking for {agg} aggreagation level.")
         df_search_results = df_search_results.loc[df_search_results["aggregation"] == agg, :]
     if "topic" in kwargs.keys():
-        topics = kwargs.pop("topic")
-        df_search_results = df_search_results.loc[df_search_results["topic"] == topics, :]
-    return df_search_results.reset_index()
+        topic = kwargs.pop("topic")
+        logging.debug(f"looking for {topic} specific topics.")
+        df_search_results = df_search_results.loc[df_search_results["topic"] == topic, :]
+    return df_search_results.reset_index(drop=True)
 
 
 def parse_fred_title(title):
@@ -202,4 +213,5 @@ def get_search_terms(series_name):
             if i.isalnum() or i == " ":
                 phrase += i
         terms.append(phrase)
+    logging.debug(f"looking for terms {terms}")
     return terms

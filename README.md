@@ -7,6 +7,54 @@ It has the following main function groups:
 1. **Data**. Get a panel dataframe of all relevant data series from FRED. This has the following columns: series ID, date, topic, value, location, aggregation. This can take as input either the dataframe result of a previous "search" call, or the raw topics and constraints that you would otherwise pass to "search". 
 1. **Locations**. Input an array of zip codes (as strings), and return a dataframe of the corresponding counties, MSA regions, and state identifies. 
 
+### Quick Use 
+
+You will need a FRED API key, [click here](https://fred.stlouisfed.org/docs/api/api_key.html).
+
+#### From source 
+
+First, clone the repo and setup a dev environment. 
+
+```bash
+$ git clone https://github.com/slee981/geofred
+$ cd geofred
+$ python3 -m venv .pyenv
+$ .pyenv/bin/activate
+$ pip install --upgrade pip
+$ pip install .
+```
+
+Next, load the library and use the functions. 
+
+```python
+import geofred 
+
+API_KEY = "<YOUR_KEY_HERE>"
+
+#######################################################
+# search 
+
+search_terms = ["transportation",  "warehousing"]
+filters = {
+  "freq": "Monthly", 
+  "sa": "NSA", 
+  "api_key": API_KEY
+}
+
+series_df = geofred.search(search_terms, **filters)
+
+# filter only series for texas
+texas_df = series_df[series_df["location"] == "Texas"]
+
+#######################################################
+# data
+
+# grab sample of data from texas 
+sample_series_df = texas_df[1:3]
+
+df = geofred.data(sample_series_df)
+```
+
 ### Interface 
 
 #### Search 
