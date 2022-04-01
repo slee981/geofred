@@ -33,6 +33,7 @@ API_KEY = "<YOUR_KEY_HERE>"
 
 #######################################################
 # search 
+#######################################################
 
 search_terms = ["transportation",  "warehousing"]
 filters = {
@@ -48,11 +49,19 @@ texas_df = series_df[series_df["location"] == "Texas"]
 
 #######################################################
 # data
+#######################################################
 
 # grab sample of data from texas 
 sample_series_df = texas_df[1:3]
-
 df = geofred.data(sample_series_df)
+
+#######################################################
+# locations
+#######################################################
+
+zips = [60610, 38139, 38103]
+geofred.locations(zips)
+
 ```
 
 ### Interface 
