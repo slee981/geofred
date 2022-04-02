@@ -16,6 +16,9 @@ install-testpypi:
 install-local: build 
 	pip install -e .
 
+test: 
+	pytest
+
 help: start 
 
 start: 
@@ -26,4 +29,8 @@ start:
 	@echo "1- activate your environment"
 	@echo "   > source .pyenv/bin/activate"
 	@echo "2- install dependencies"
-	@echo "   > pip install -r requirements.pip"
+	@echo "   > make devenv"
+
+devenv: 
+	pip install --upgrade pip && \
+	pip install --require-virtualenv -r requirements.pip
