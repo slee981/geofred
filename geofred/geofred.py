@@ -14,6 +14,10 @@ from geofred.utils import (
 )
 
 
+def key(api_key): 
+    fred.key(api_key)
+
+
 def search(topics: Union[str, List[str]], **kwargs):
     """Return dataframe with relevant FRED series names"""
     search_terms = get_search_terms(topics)

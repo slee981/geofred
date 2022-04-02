@@ -30,6 +30,7 @@ Next, load the library and use the functions.
 import geofred 
 
 API_KEY = "<YOUR_KEY_HERE>"
+geofred.key(API_KEY)
 
 #######################################################
 # search 
@@ -39,7 +40,6 @@ search_terms = ["transportation",  "warehousing"]
 filters = {
   "freq": "Monthly", 
   "sa": "NSA", 
-  "api_key": API_KEY
 }
 
 series_df = geofred.search(search_terms, **filters)

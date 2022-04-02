@@ -1,5 +1,5 @@
 from .geofred import (
-    search, data, locations
+    key, search, data, locations
 )
 
 

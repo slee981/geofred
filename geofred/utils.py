@@ -73,6 +73,7 @@ def do_search(topic: str, **kwargs) -> pd.DataFrame:
 
                 df = pd.concat([df, df_tmp])
         except:
+            # TODO: better error handling and logging
             logging.error(f"ERROR: Disconnected from host with result {res}.")
             throws_error = True
 
