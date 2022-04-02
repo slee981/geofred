@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='geofred',
@@ -18,4 +18,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3.5',
     ],
+    tests_require=['pytest'],
+    test_suite='tests'
 )
