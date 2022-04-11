@@ -1,7 +1,5 @@
-from .geofred import (
-    key, search, data, locations
-)
+from .geofred import key, search, data, locations
 
 
-__version__ = "1.0.0"
-__author__ = 'Stephen Lee'
+__version__ = "0.1.0"
+__author__ = "Stephen Lee"

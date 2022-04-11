@@ -1,20 +1,33 @@
 PKGNAME=geofred
 
-build: 
-	python3 setup.py sdist bdist_wheel
+# which build formula do I use? 
+# python3 setup.py sdist bdist_wheel
+build-project: 
+	. .pyenv/bin/activate && python3 -m build
 
-upload: 
+upload: clean build-project
+	. .pyenv/bin/activate && \
 	python3 -m twine upload dist/*
 
-upload-testpypi: build
-	python3 -m twine upload -repository testpypi dist/*
+upload-testpypi: clean build-project
+	. .pyenv/bin/activate && python3 -m twine upload --verbose --repository testpypi dist/*
 
-install-testpypi: 
+install-testpypi: upload-testpypi
 	pip uninstall $(PKGNAME)
-	pip install -i https://test.pypi.org/$(PKGNAME) $(PKGNAME)
+	pip install -i https://test.pypi.org/simple $(PKGNAME)
 
-install-local: build 
+install-local: build-project
+	pip uninstall $(PKGNAME)
 	pip install -e .
+
+clean: 
+	rm -rf dist/*
+
+uninstall: 
+	pip uninstall geofred
+
+env: 
+	. .pyenv/bin/activate
 
 test: 
 	pytest

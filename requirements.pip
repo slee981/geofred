@@ -1,4 +1,2 @@
 twine 
-pytest
-setuptools 
-wheel 
+build
