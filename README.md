@@ -16,12 +16,8 @@ You will need a FRED API key, [click here](https://fred.stlouisfed.org/docs/api/
 First, clone the repo and setup a dev environment. 
 
 ```bash
-$ git clone https://github.com/slee981/geofred
-$ cd geofred
-$ python3 -m venv .pyenv
-$ .pyenv/bin/activate
 $ pip install --upgrade pip
-$ pip install .
+$ pip install geofred
 ```
 
 Next, load the library and use the functions. 
