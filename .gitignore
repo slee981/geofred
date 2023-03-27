@@ -7,4 +7,4 @@ dist
 
 geofred.egg-info
 
-workspace.py
+workspace.*

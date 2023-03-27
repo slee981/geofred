@@ -10,7 +10,7 @@ from geofred.utils import (
     search_with_filter,
     get_search_terms,
     get_locations_df,
-    make_valid_zip
+    make_valid_key
 )
 
 
@@ -67,7 +67,7 @@ def locations(zips: Union[List[int], List[str]]) -> pd.DataFrame:
     :param zips: a pandas Series object of zipcodes. 
     """
     zips_ds = pd.Series(zips)
-    zips = zips_ds.apply(make_valid_zip).drop_duplicates().sort_values().values
+    zips = zips_ds.apply(make_valid_key).drop_duplicates().sort_values().values
     loc_df = get_locations_df()
     idxs = loc_df['zip'].isin(zips)
     return loc_df.loc[idxs, :].reset_index(drop=True)

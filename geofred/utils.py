@@ -155,6 +155,7 @@ def parse_fred_title(title):
         # 2- State
         # 3- it's an industry
         topic, location = title_list[0].strip(), title_list[-1].strip()
+        logging.debug(f"parsing title {title} into topic {topic} and location {location}")
         if "MSA" in location:
             agg_type = "MSA"
         elif "County" in location:
@@ -171,7 +172,7 @@ def parse_fred_title(title):
     return topic, location, agg_type
 
 
-def make_valid_zip(zip: int) -> str:
+def make_valid_key(ele: int or str, zero_pad=True) -> str:
     """
     ensure zips are 5 digit strings
 
@@ -179,18 +180,21 @@ def make_valid_zip(zip: int) -> str:
     :param zip: int
     OUTPUT - a zip string, padded with zeros as needed
     """
-    zip_length = 5
-    err_code = -1
+    pad_length = 5
+    err_code = "ERROR"
     try:
-        z = str(zip)
-        num_zeros = zip_length - len(z)
-        return "0" * num_zeros + z
+        # coerce to string
+        e = str(ele)
+        if zero_pad: 
+            num_zeros = pad_length - len(e)
+            return "0" * num_zeros + e
+        return e
     except:
         logging.error(f"unable to convert zip {zip} to string. returning {err_code}")
         return err_code
 
 
-def build_map(df, cols: list) -> dict:
+def build_map(df, cols: list, **kwargs) -> dict:
     """
     INPUT
     :param df: a pandas dataframe
@@ -203,8 +207,8 @@ def build_map(df, cols: list) -> dict:
     df_tmp = df.loc[:, cols].copy()
 
     result_dict = {}
-    for i, row in df_tmp.iterrows():
-        k = make_valid_zip(row[cols[0]])
+    for _, row in df_tmp.iterrows():
+        k = make_valid_key(row[cols[0]], **kwargs)
         v = row[cols[1]]
         result_dict[k] = v
     return result_dict
