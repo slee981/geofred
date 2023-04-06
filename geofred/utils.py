@@ -217,7 +217,7 @@ def build_map(df, cols: list, **kwargs) -> dict:
 def get_locations_df():
     from geofred.storage.location_lookup import DF_LOCATIONS
 
-    DF_LOCATIONS["zip"] = DF_LOCATIONS["zip"].apply(make_valid_zip)
+    DF_LOCATIONS["zip"] = DF_LOCATIONS["zip"].apply(make_valid_key)
     return DF_LOCATIONS
 
 

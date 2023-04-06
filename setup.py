@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="geofred",
-    version="0.1.1",
+    version="0.1.2",
     description='A wrapper around "zachwill/fred" FRED API that provides easier handling of locations and aggregation types.',
     url="https://github.com/slee981/geofred",
     author="Stephen Lee",
